@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login as loginApi, register as registerApi, logout as logoutApi } from '../services/authService';
+import { login as loginApi, register as registerApi, logout as logoutApi, getProfile } from '../services/authService';
 
 interface User {
   id: number;
@@ -30,11 +30,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is logged in on initial load
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
-      // In a real app, we would validate the token here
       setToken(storedToken);
+      getProfile()
+        .then((r) => {
+          const payload = r.data?.data ?? r.data;
+          if (payload?.user) setUser(payload.user);
+        })
+        .catch(() => {
+          localStorage.removeItem('token');
+          setToken(null);
+        });
     }
   }, []);
 
@@ -43,11 +50,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setError(null);
     try {
       const response = await loginApi(email, password);
-      const { data } = response;
+      const payload = response.data?.data ?? response.data;
+      const userData = payload.user;
+      const tokenData = payload.token;
       
-      setUser(data.user);
-      setToken(data.token);
-      localStorage.setItem('token', data.token);
+      setUser(userData);
+      setToken(tokenData);
+      localStorage.setItem('token', tokenData);
       
       navigate('/dashboard');
     } catch (err: any) {
@@ -63,11 +72,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setError(null);
     try {
       const response = await registerApi(name, email, password);
-      const { data } = response;
+      const payload = response.data?.data ?? response.data;
+      const userData = payload.user;
+      const tokenData = payload.token;
       
-      setUser(data.user);
-      setToken(data.token);
-      localStorage.setItem('token', data.token);
+      setUser(userData);
+      setToken(tokenData);
+      localStorage.setItem('token', tokenData);
       
       navigate('/dashboard');
     } catch (err: any) {

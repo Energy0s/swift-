@@ -26,9 +26,16 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expirado ou inválido, redirecionar para login
       localStorage.removeItem('token');
       window.location.href = '/login';
+      return Promise.reject(error);
+    }
+    if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+      error.response = error.response || {};
+      error.response.data = { message: 'NT01 - Tempo esgotado. Verifique sua conexão e tente novamente.' };
+    } else if (error.code === 'ERR_NETWORK' || !error.response) {
+      error.response = error.response || {};
+      error.response.data = { message: 'NT02 - Sem conexão. Verifique sua rede e tente novamente.' };
     }
     return Promise.reject(error);
   }

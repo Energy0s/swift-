@@ -1,8 +1,8 @@
-# Integração com API - Frontend do Simulador SWIFT
+# Integração com API - Frontend SWIFT
 
 ## Visão Geral
 
-Este documento descreve como o frontend do simulador SWIFT irá se comunicar com o backend através de requisições HTTP. Ele define endpoints, formatos de requisição e resposta, e padrões de tratamento de erros.
+Este documento descreve como o frontend SWIFT se comunica com o backend através de requisições HTTP. Ele define endpoints, formatos de requisição e resposta, e padrões de tratamento de erros.
 
 ## Configuração Base
 
@@ -235,9 +235,12 @@ Criar nova transferência SWIFT
   "destinationHolderName": "Beneficiário Exemplo",
   "amount": 1500.00,
   "currency": "USD",
-  "purpose": "Pagamento de serviço"
+  "purpose": "Pagamento de serviço",
+  "categoryPurpose": "OTHR"
 }
 ```
+
+**categoryPurpose** (opcional, para SEPA): `SALA` (salário), `CORT` (bens/serviços), `SUPP` (fornecedor), `GOVT` (governo), `OTHR` (outro).
 
 **Response Success (201):**
 ```json

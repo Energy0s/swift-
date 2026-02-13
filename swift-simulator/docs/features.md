@@ -1,14 +1,14 @@
-# Recursos Específicos para o Simulador SWIFT
+# Recursos Específicos para o Sistema SWIFT
 
 ## Visão Geral do Projeto
 
-Este documento detalha os recursos específicos que devem ser implementados no simulador SWIFT para garantir realismo e funcionalidade completa.
+Este documento detalha os recursos específicos que devem ser implementados no sistema SWIFT para garantir funcionalidade completa.
 
 ## Módulos do Sistema
 
 ### 1. Módulo de Autenticação e Autorização
 - Login e logout de usuários
-- Registro de novos usuários (simulado)
+- Registro de novos usuários
 - Recuperação de senha
 - Perfil de usuário
 - Controle de acesso baseado em papéis
@@ -33,7 +33,7 @@ Este documento detalha os recursos específicos que devem ser implementados no s
 - Geração automática de mensagens MT103
 - Visualização de mensagens formatadas
 - Histórico de mensagens enviadas/recebidas
-- Simulação de processamento de mensagens
+- Processamento de mensagens
 - Status de confirmação
 
 ### 5. Módulo de Relatórios e Estatísticas
@@ -106,11 +106,11 @@ Este documento detalha os recursos específicos que devem ser implementados no s
 
 ### Integrações
 - API de conversão de moedas
-- Simulação de rede SWIFT
+- Envio pela rede SWIFT
 - Sistema de notificações
 - Integração com serviços de verificação
 
-## Simulação de Processos Reais
+## Processos de Transferência
 
 ### Processo de Transferência
 1. Usuário preenche formulário de transferência
@@ -119,7 +119,7 @@ Este documento detalha os recursos específicos que devem ser implementados no s
 4. Calcula taxas e mostra valor total
 5. Usuário confirma transação
 6. Sistema gera mensagem SWIFT MT103
-7. Simula envio pela rede SWIFT
+7. Envio pela rede SWIFT
 8. Atualiza status e notifica partes envolvidas
 9. Registra na base de dados
 10. Gera comprovante

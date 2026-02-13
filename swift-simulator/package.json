@@ -1,13 +1,15 @@
 {
-  "name": "swift-transfer-simulator",
+  "name": "swift-transfer",
   "version": "1.0.0",
-  "description": "A realistic simulator of the SWIFT financial transfer system with frontend",
+  "description": "SWIFT financial transfer system",
   "main": "index.js",
   "scripts": {
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
     "dev:frontend": "cd src/frontend && npm run dev",
     "dev:backend": "cd src/backend && npm run dev",
     "build": "npm run build:frontend && npm run build:backend",
+    "clean": "cd src/frontend && npm run clean",
+    "rebuild": "cd src/frontend && npm run rebuild && cd ../.. && npm run build:backend",
     "build:frontend": "cd src/frontend && npm run build",
     "build:backend": "cd src/backend && npm run build",
     "start": "node dist/backend/server.js",
@@ -17,11 +19,10 @@
     "swift",
     "finance",
     "transfer",
-    "simulation",
     "banking",
     "international-payment"
   ],
-  "author": "SWIFT Simulator Team",
+  "author": "SWIFT Transfer Team",
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^7.0.0",

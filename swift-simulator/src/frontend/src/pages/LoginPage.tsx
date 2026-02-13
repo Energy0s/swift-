@@ -9,24 +9,22 @@ import {
   Alert,
   Paper,
 } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login, loading } = useAuth();
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
     try {
       await login(email, password);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'An error occurred during login');
+      setError(err.response?.data?.message || 'Credenciais inválidas');
     }
   };
 
@@ -40,28 +38,27 @@ const LoginPage: React.FC = () => {
           alignItems: 'center',
         }}
       >
-        <Paper elevation={3} sx={{ padding: 4, width: '100%' }}>
+        <Paper elevation={0} sx={{ padding: 4, width: '100%', border: '1px solid #E0E0E0' }}>
           <Typography component="h1" variant="h5" align="center" gutterBottom>
-            SWIFT Transfer Simulator
+            SWIFT Transfer
           </Typography>
-          <Typography variant="h6" align="center" color="text.secondary" gutterBottom>
-            Sign in to your account
+          <Typography variant="body1" align="center" color="text.secondary" gutterBottom>
+            Entre na sua conta
           </Typography>
-          
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>
               {error}
             </Alert>
           )}
-          
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <TextField
               margin="normal"
               required
               fullWidth
               id="email"
-              label="Email Address"
+              label="Email"
               name="email"
+              type="email"
               autoComplete="email"
               autoFocus
               value={email}
@@ -72,26 +69,30 @@ const LoginPage: React.FC = () => {
               required
               fullWidth
               name="password"
-              label="Password"
+              label="Senha"
               type="password"
               id="password"
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
+            <Box sx={{ textAlign: 'right', mt: 0.5 }}>
+              <Link component={RouterLink} to="/forgot-password" variant="body2">
+                Esqueci minha senha
+              </Link>
+            </Box>
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              sx={{ mt: 2, mb: 2 }}
               disabled={loading}
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? 'Entrando...' : 'Entrar'}
             </Button>
-            
             <Box sx={{ textAlign: 'center', mt: 2 }}>
-              <Link href="/register" variant="body2">
-                Don't have an account? Sign Up
+              <Link component={RouterLink} to="/register" variant="body2">
+                Não tem conta? Cadastre-se
               </Link>
             </Box>
           </Box>

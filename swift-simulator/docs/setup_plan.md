@@ -1,4 +1,4 @@
-# Plano de Implementação do Simulador SWIFT
+# Plano de Implementação do Sistema SWIFT
 
 ## Fase 1: Estruturação Inicial (Dia 1)
 - [x] Pesquisa completa sobre o sistema SWIFT
@@ -45,7 +45,7 @@
 - PostgreSQL e Sequelize
 - Material UI
 - Autenticação JWT
-- Protocolo SWIFT (simulado)
+- Protocolo SWIFT
 
 ### Ferramentas
 - Editor de código (VSCode)
@@ -59,7 +59,7 @@
 - API RESTful seguindo boas práticas
 - Autenticação e autorização seguras
 - Validação rigorosa dos dados
-- Simulação realista do protocolo SWIFT
+- Implementação do protocolo SWIFT
 - Sistema de logging e auditoria
 
 ### Frontend
@@ -72,7 +72,7 @@
 ## Critérios de Sucesso
 
 ### Funcionalidade
-- Capacidade de simular transferências SWIFT reais
+- Capacidade de realizar transferências SWIFT
 - Validação correta de IBAN/BIC
 - Geração precisa de mensagens SWIFT
 - Sistema de autenticação seguro
@@ -85,7 +85,7 @@
 - Código testável e manutenível
 
 ### Realismo
-- Simulação fiel ao sistema SWIFT real
+- Conformidade com o padrão SWIFT
 - Processos e estados realistas
 - Mensagens no formato correto
 - Consideração de aspectos regulatórios

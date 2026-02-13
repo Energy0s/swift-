@@ -1,4 +1,4 @@
-# Pesquisa Completa sobre o Sistema SWIFT e Simulador Financeiro
+# Pesquisa Completa sobre o Sistema SWIFT
 
 ## O que é SWIFT?
 
@@ -40,7 +40,7 @@ SWIFT (Society for Worldwide Interbank Financial Telecommunication) é uma rede 
 - Empresas multinacionais
 - Governo e agências públicas
 
-## Funcionalidades de um Simulador SWIFT Realista
+## Funcionalidades do Sistema SWIFT
 
 ### Frontend
 1. Interface de usuário profissional
@@ -147,7 +147,7 @@ SWIFT (Society for Worldwide Interbank Financial Telecommunication) é uma rede 
 - Plataformas de pagamento
 - Sistemas de relatórios regulatórios
 
-## Simulação de Processos
+## Processos de Transferência
 
 ### Processo de Transferência
 1. Inserção dos detalhes da transferência

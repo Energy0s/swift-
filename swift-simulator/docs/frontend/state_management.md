@@ -1,8 +1,8 @@
-# Gerenciamento de Estado - Frontend do Simulador SWIFT
+# Gerenciamento de Estado - Frontend SWIFT
 
 ## Visão Geral
 
-Este documento descreve a estratégia de gerenciamento de estado para o frontend do simulador SWIFT, definindo como os dados serão mantidos, atualizados e compartilhados entre os componentes da aplicação.
+Este documento descreve a estratégia de gerenciamento de estado para o frontend SWIFT, definindo como os dados serão mantidos, atualizados e compartilhados entre os componentes da aplicação.
 
 ## Tecnologia Escolhida
 

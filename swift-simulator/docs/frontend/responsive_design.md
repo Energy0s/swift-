@@ -1,8 +1,8 @@
-# Design Responsivo - Frontend do Simulador SWIFT
+# Design Responsivo - Frontend SWIFT
 
 ## Visão Geral
 
-Este documento estabelece as diretrizes e especificações para o design responsivo do frontend do simulador SWIFT, garantindo uma experiência de usuário consistente e otimizada em diferentes dispositivos e tamanhos de tela.
+Este documento estabelece as diretrizes e especificações para o design responsivo do frontend SWIFT, garantindo uma experiência de usuário consistente e otimizada em diferentes dispositivos e tamanhos de tela.
 
 ## Breakpoints
 

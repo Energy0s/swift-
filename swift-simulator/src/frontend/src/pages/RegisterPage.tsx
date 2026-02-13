@@ -9,8 +9,8 @@ import {
   Alert,
   Paper,
 } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
 
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState('');
@@ -19,21 +19,18 @@ const RegisterPage: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const { register, loading } = useAuth();
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError('Senhas não coincidem');
       return;
     }
-    
     try {
       await register(name, email, password);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'An error occurred during registration');
+      setError(err.response?.data?.message || 'Erro ao cadastrar');
     }
   };
 
@@ -47,27 +44,25 @@ const RegisterPage: React.FC = () => {
           alignItems: 'center',
         }}
       >
-        <Paper elevation={3} sx={{ padding: 4, width: '100%' }}>
+        <Paper elevation={0} sx={{ padding: 4, width: '100%', border: '1px solid #E0E0E0' }}>
           <Typography component="h1" variant="h5" align="center" gutterBottom>
-            SWIFT Transfer Simulator
+            SWIFT Transfer
           </Typography>
-          <Typography variant="h6" align="center" color="text.secondary" gutterBottom>
-            Create a new account
+          <Typography variant="body1" align="center" color="text.secondary" gutterBottom>
+            Criar conta
           </Typography>
-          
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>
               {error}
             </Alert>
           )}
-          
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <TextField
               margin="normal"
               required
               fullWidth
               id="name"
-              label="Full Name"
+              label="Nome completo"
               name="name"
               autoComplete="name"
               autoFocus
@@ -79,8 +74,9 @@ const RegisterPage: React.FC = () => {
               required
               fullWidth
               id="email"
-              label="Email Address"
+              label="Email"
               name="email"
+              type="email"
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -90,7 +86,7 @@ const RegisterPage: React.FC = () => {
               required
               fullWidth
               name="password"
-              label="Password"
+              label="Senha"
               type="password"
               id="password"
               value={password}
@@ -101,7 +97,7 @@ const RegisterPage: React.FC = () => {
               required
               fullWidth
               name="confirmPassword"
-              label="Confirm Password"
+              label="Confirmar senha"
               type="password"
               id="confirmPassword"
               value={confirmPassword}
@@ -114,12 +110,11 @@ const RegisterPage: React.FC = () => {
               sx={{ mt: 3, mb: 2 }}
               disabled={loading}
             >
-              {loading ? 'Creating account...' : 'Sign Up'}
+              {loading ? 'Cadastrando...' : 'Cadastrar'}
             </Button>
-            
             <Box sx={{ textAlign: 'center', mt: 2 }}>
-              <Link href="/login" variant="body2">
-                Already have an account? Sign In
+              <Link component={RouterLink} to="/login" variant="body2">
+                Já tem conta? Entrar
               </Link>
             </Box>
           </Box>

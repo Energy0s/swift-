@@ -1,4 +1,4 @@
-# Componentes do Frontend - Simulador SWIFT
+# Componentes do Frontend - SWIFT
 
 ## Componentes de UI Reutilizáveis
 
