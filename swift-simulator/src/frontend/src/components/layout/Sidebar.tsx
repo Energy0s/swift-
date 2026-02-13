@@ -90,18 +90,17 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
     >
         <Box sx={{ overflow: 'auto', height: '100vh', py: 2, minHeight: 0 }}>
         <Box sx={{ px: collapsed ? 2 : 2.5, mb: 2 }}>
-          <Typography
-            variant="h6"
-            noWrap={!collapsed}
+          <Box
+            component="img"
+            src="/swift-logo.svg"
+            alt="SWIFT Transfer"
             sx={{
-              fontWeight: 600,
-              color: 'primary.main',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
+              height: collapsed ? 22 : 28,
+              width: 'auto',
+              maxWidth: collapsed ? 48 : 140,
+              objectFit: 'contain',
             }}
-          >
-            {collapsed ? 'ST' : 'SWIFT Transfer'}
-          </Typography>
+          />
         </Box>
 
         <List disablePadding>
