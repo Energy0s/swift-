@@ -2,12 +2,10 @@
 # Dependencies
 node_modules/
 
-# Build artifacts
+# Build directories
 dist/
 build/
-*.js
-*.ts
-*.tsx
+target/
 
 # Environment variables
 .env
@@ -19,47 +17,52 @@ build/
 .idea/
 *.swp
 *.swo
+*.tmp
 
 # Logs
 *.log
 
-# Temporary files
-*.tmp
-
-# Coverage
-coverage/
-htmlcov/
-.coverage
-
-# Python cache
+# Python specific
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-
-# Virtual environments
-venv/
-.venv/
-.env
-
-# Distribution / packaging
 .Python
 env/
-venv.bak/
-ENV/
-
-# Testing
-.mypy_cache/
-.pytest_cache/
-.nyc_output/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
 coverage.xml
-
-# OS generated files
+*.cover
+*.log
+.git/modules/
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
+Thumbs.db
+
+# TypeScript/JavaScript specific
+*.tsbuildinfo
+*.js.map
+*.jsx.map
+*.ts.map
+*.tsx.map
+
+# Vite specific
+!.vite/
+vite.config.js.timestamp*
+vite.config.ts.timestamp*
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+.DS_Store
 Thumbs.db
 ```
