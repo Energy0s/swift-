@@ -21,9 +21,10 @@ import {
   ExpandMore as ExpandMoreIcon,
   Payment as PaymentIcon,
   Message as MessageIcon,
+  Inbox as InboxIcon,
 } from '@mui/icons-material';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { PAGAMENTOS, MENSAGENS, TESOURARIA_FX, TRADE_COLLECTIONS, SECURITIES } from '../../constants/swiftMtTypes';
+import { PAGAMENTOS, MENSAGENS, MENSAGENS_GROUPS, PAGAMENTOS_GROUPS, TESOURARIA_FX, TESOURARIA_GROUPS, getGroupByCode, TRADE_COLLECTIONS, TRADE_GROUPS, SECURITIES, SECURITIES_GROUPS } from '../../constants/swiftMtTypes';
 
 const SIDEBAR_WIDTH = 280;
 const SIDEBAR_COLLAPSED = 72;
@@ -31,6 +32,7 @@ const SIDEBAR_COLLAPSED = 72;
 const staticItems = [
   { id: 'dashboard', path: '/dashboard', label: 'Dashboard', icon: <DashboardIcon /> },
   { id: 'transfer', path: '/transfer', label: 'Transferências (MT103)', icon: <SendIcon /> },
+  { id: 'inbox', path: '/inbox', label: 'Caixa de Entrada', icon: <InboxIcon /> },
   { id: 'messages', path: '/messages', label: 'Mensagens SWIFT', icon: <MessageIcon /> },
   { id: 'transactions', path: '/transactions', label: 'Histórico', icon: <HistoryIcon /> },
   { id: 'contas', path: '/dashboard', label: 'Contas', icon: <AccountBalanceIcon /> },
@@ -39,15 +41,17 @@ const staticItems = [
 
 interface SidebarProps {
   collapsed?: boolean;
+  onCloseDrawer?: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
+const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onCloseDrawer }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const location = useLocation();
   const navigate = useNavigate();
-  const [openPagamentos, setOpenPagamentos] = useState(true);
-  const [openMensagens, setOpenMensagens] = useState(true);
+  const [openPagamentos, setOpenPagamentos] = useState(false);
+  const [openMensagens, setOpenMensagens] = useState(false);
+  const [openFree, setOpenFree] = useState(false);
   const [openTesouraria, setOpenTesouraria] = useState(false);
   const [openTrade, setOpenTrade] = useState(false);
   const [openSecurities, setOpenSecurities] = useState(false);
@@ -56,7 +60,20 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
   const effectiveWidth = isMobile ? SIDEBAR_WIDTH : width;
 
   const isActive = (path: string) => location.pathname === path;
-  const isMtActive = (code: string) => location.pathname === `/messages/${code}`;
+  const isMtActive = (code: string) => {
+    if (code === 'MT101' || code === 'MT102' || code === 'MT102STP') return location.pathname.startsWith('/mt101');
+    if (code === 'MT103' || code === 'MT103REMIT' || code === 'MT103STP') return location.pathname.startsWith('/mt103');
+    if (code === 'MT109' || code === 'MT110') return location.pathname.startsWith('/mt109');
+    if (code === 'FREE') return location.pathname.startsWith('/free');
+    const group = getGroupByCode(code);
+    if (group) return location.pathname === `/messages/${group.route}`;
+    return location.pathname === `/messages/${code}`;
+  };
+
+  const handleNav = (path: string) => {
+    navigate(path);
+    onCloseDrawer?.();
+  };
 
   const navStyle = (active: boolean) => ({
     borderRadius: 1,
@@ -103,20 +120,20 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
           />
         </Box>
 
-        <List disablePadding>
+        <List disablePadding sx={{ '& .MuiSvgIcon-root': { fontSize: '1.25rem' } }}>
           {staticItems.slice(0, 3).map((item) => {
             const active = isActive(item.path);
             return (
               <ListItem key={item.id} disablePadding sx={{ px: 1 }}>
                 <ListItemButton
-                  onClick={() => navigate(item.path)}
+                  onClick={() => handleNav(item.path)}
                   selected={active}
                   sx={navStyle(active)}
                 >
                   <ListItemIcon sx={{ minWidth: collapsed ? 0 : 40, color: 'inherit' }}>
                     {item.icon}
                   </ListItemIcon>
-                  {!collapsed && <ListItemText primary={item.label} />}
+                  {!collapsed && <ListItemText primary={item.label} primaryTypographyProps={{ fontWeight: 300 }} />}
                 </ListItemButton>
               </ListItem>
             );
@@ -125,35 +142,85 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
           {!collapsed && (
             <>
               <Box sx={{ px: 2, py: 1, mt: 1 }}>
-                <Typography variant="caption" fontWeight={700} color="primary.main" sx={{ textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                <Typography variant="caption" fontWeight={300} color="primary.main" sx={{ textTransform: 'uppercase', letterSpacing: 0.5 }}>
                   Mensagens MT
                 </Typography>
               </Box>
               <ListItem disablePadding sx={{ px: 1, mt: 1 }}>
-                <ListItemButton onClick={() => setOpenPagamentos(!openPagamentos)} sx={navStyle(false)}>
+                <ListItemButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenPagamentos(!openPagamentos);
+                  }}
+                  sx={navStyle(false)}
+                >
                   <ListItemIcon sx={{ minWidth: 40, color: '#6B6B6B' }}>
                     <PaymentIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Pagamentos" primaryTypographyProps={{ fontWeight: 600, fontSize: '0.875rem' }} />
+                  <ListItemText primary="Pagamentos" primaryTypographyProps={{ fontWeight: 300, fontSize: '0.875rem' }} />
                   {openPagamentos ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                 </ListItemButton>
               </ListItem>
               <Collapse in={openPagamentos} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
-                  {PAGAMENTOS.map((mt) => {
+                  <ListItem disablePadding sx={{ pl: 4, pr: 1 }}>
+                    <ListItemButton
+                      onClick={() => handleNav('/mt101')}
+                      selected={isMtActive('MT101')}
+                      sx={{ ...navStyle(isMtActive('MT101')), py: 0.5 }}
+                    >
+                      <ListItemText
+                        primary="MT101 / MT102 / MT102+ (STP)"
+                        secondary="Transferência Múltipla"
+                        primaryTypographyProps={{ fontSize: '0.8rem', fontWeight: 300 }}
+                        secondaryTypographyProps={{ fontSize: '0.7rem', noWrap: true, fontWeight: 300 }}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                  <ListItem disablePadding sx={{ pl: 4, pr: 1 }}>
+                    <ListItemButton
+                      onClick={() => handleNav('/mt103')}
+                      selected={isMtActive('MT103')}
+                      sx={{ ...navStyle(isMtActive('MT103')), py: 0.5 }}
+                    >
+                      <ListItemText
+                        primary="MT103 / MT103+ (REMIT) / MT103+ (STP)"
+                        secondary="Transferência de Crédito"
+                        primaryTypographyProps={{ fontSize: '0.8rem', fontWeight: 300 }}
+                        secondaryTypographyProps={{ fontSize: '0.7rem', noWrap: true, fontWeight: 300 }}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                  {PAGAMENTOS_GROUPS.map((g) => (
+                    <ListItem key={g.route} disablePadding sx={{ pl: 4, pr: 1 }}>
+                      <ListItemButton
+                        onClick={() => handleNav(`/messages/${g.route}`)}
+                        selected={g.codes.some((c) => isMtActive(c))}
+                        sx={{ ...navStyle(g.codes.some((c) => isMtActive(c))), py: 0.5 }}
+                      >
+                        <ListItemText
+                          primary={g.label}
+                          secondary={g.secondary}
+                          primaryTypographyProps={{ fontSize: '0.8rem', fontWeight: 300 }}
+                          secondaryTypographyProps={{ fontSize: '0.7rem', noWrap: true, fontWeight: 300 }}
+                        />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                  {PAGAMENTOS.filter((mt) => !['MT101', 'MT102', 'MT102STP', 'MT103', 'MT103REMIT', 'MT103STP'].includes(mt.code) && !PAGAMENTOS_GROUPS.some((g) => g.codes.includes(mt.code))).map((mt) => {
                     const active = isMtActive(mt.code);
                     return (
                       <ListItem key={mt.code} disablePadding sx={{ pl: 4, pr: 1 }}>
                         <ListItemButton
-                          onClick={() => navigate(`/messages/${mt.code}`)}
+                          onClick={() => handleNav(`/messages/${mt.code}`)}
                           selected={active}
                           sx={{ ...navStyle(active), py: 0.5 }}
                         >
                           <ListItemText
                             primary={mt.label}
                             secondary={mt.fullName}
-                            primaryTypographyProps={{ fontSize: '0.8rem' }}
-                            secondaryTypographyProps={{ fontSize: '0.7rem', noWrap: true }}
+                            primaryTypographyProps={{ fontSize: '0.8rem', fontWeight: 300 }}
+                            secondaryTypographyProps={{ fontSize: '0.7rem', noWrap: true, fontWeight: 300 }}
                           />
                         </ListItemButton>
                       </ListItem>
@@ -163,30 +230,85 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
               </Collapse>
 
               <ListItem disablePadding sx={{ px: 1, mt: 0.5 }}>
-                <ListItemButton onClick={() => setOpenMensagens(!openMensagens)} sx={navStyle(false)}>
+                <ListItemButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenFree(!openFree);
+                  }}
+                  sx={navStyle(false)}
+                >
                   <ListItemIcon sx={{ minWidth: 40, color: '#6B6B6B' }}>
                     <MessageIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Mensagens" primaryTypographyProps={{ fontWeight: 600, fontSize: '0.875rem' }} />
+                  <ListItemText primary="Mensagens Livres" primaryTypographyProps={{ fontWeight: 300, fontSize: '0.875rem' }} />
+                  {openFree ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                </ListItemButton>
+              </ListItem>
+              <Collapse in={openFree} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  <ListItem disablePadding sx={{ pl: 4, pr: 1 }}>
+                    <ListItemButton
+                      onClick={() => handleNav('/free')}
+                      selected={isMtActive('FREE')}
+                      sx={{ ...navStyle(isMtActive('FREE')), py: 0.5 }}
+                    >
+                      <ListItemText
+                        primary="MT199 / MT299 / MT999"
+                        secondary="Free Format Message"
+                        primaryTypographyProps={{ fontSize: '0.8rem', fontWeight: 300 }}
+                        secondaryTypographyProps={{ fontSize: '0.7rem', noWrap: true, fontWeight: 300 }}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                </List>
+              </Collapse>
+              <ListItem disablePadding sx={{ px: 1, mt: 0.5 }}>
+                <ListItemButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenMensagens(!openMensagens);
+                  }}
+                  sx={navStyle(false)}
+                >
+                  <ListItemIcon sx={{ minWidth: 40, color: '#6B6B6B' }}>
+                    <MessageIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Mensagens" primaryTypographyProps={{ fontWeight: 300, fontSize: '0.875rem' }} />
                   {openMensagens ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                 </ListItemButton>
               </ListItem>
               <Collapse in={openMensagens} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
-                  {MENSAGENS.map((mt) => {
-                    const active = isMtActive(mt.code);
+                  {MENSAGENS_GROUPS.map((g) => (
+                    <ListItem key={g.route} disablePadding sx={{ pl: 4, pr: 1 }}>
+                      <ListItemButton
+                        onClick={() => handleNav(g.route === 'MT109' ? '/mt109' : `/messages/${g.route}`)}
+                        selected={g.codes.some((c) => isMtActive(c))}
+                        sx={{ ...navStyle(g.codes.some((c) => isMtActive(c))), py: 0.5 }}
+                      >
+                        <ListItemText
+                          primary={g.label}
+                          secondary={g.secondary}
+                          primaryTypographyProps={{ fontSize: '0.8rem', fontWeight: 300 }}
+                          secondaryTypographyProps={{ fontSize: '0.7rem', noWrap: true, fontWeight: 300 }}
+                        />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                  {MENSAGENS.filter((mt) => !MENSAGENS_GROUPS.some((g) => g.codes.includes(mt.code)) && !['MT199', 'MT299', 'MT999'].includes(mt.code)).map((mt) => {
+                    const active = location.pathname === `/messages/${mt.code}`;
                     return (
                       <ListItem key={mt.code} disablePadding sx={{ pl: 4, pr: 1 }}>
                         <ListItemButton
-                          onClick={() => navigate(`/messages/${mt.code}`)}
+                          onClick={() => handleNav(`/messages/${mt.code}`)}
                           selected={active}
                           sx={{ ...navStyle(active), py: 0.5 }}
                         >
                           <ListItemText
                             primary={mt.label}
                             secondary={mt.fullName}
-                            primaryTypographyProps={{ fontSize: '0.8rem' }}
-                            secondaryTypographyProps={{ fontSize: '0.7rem', noWrap: true }}
+                            primaryTypographyProps={{ fontSize: '0.8rem', fontWeight: 300 }}
+                            secondaryTypographyProps={{ fontSize: '0.7rem', noWrap: true, fontWeight: 300 }}
                           />
                         </ListItemButton>
                       </ListItem>
@@ -196,30 +318,52 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
               </Collapse>
 
               <ListItem disablePadding sx={{ px: 1, mt: 0.5 }}>
-                <ListItemButton onClick={() => setOpenTesouraria(!openTesouraria)} sx={navStyle(false)}>
+                <ListItemButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenTesouraria(!openTesouraria);
+                  }}
+                  sx={navStyle(false)}
+                >
                   <ListItemIcon sx={{ minWidth: 40, color: '#6B6B6B' }}>
                     <PaymentIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Tesouraria/FX (MT3xx)" primaryTypographyProps={{ fontWeight: 600, fontSize: '0.875rem' }} />
+                  <ListItemText primary="Tesouraria/FX (MT3xx)" primaryTypographyProps={{ fontWeight: 300, fontSize: '0.875rem' }} />
                   {openTesouraria ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                 </ListItemButton>
               </ListItem>
               <Collapse in={openTesouraria} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
-                  {TESOURARIA_FX.map((mt) => {
+                  {TESOURARIA_GROUPS.map((g) => (
+                    <ListItem key={g.route} disablePadding sx={{ pl: 4, pr: 1 }}>
+                      <ListItemButton
+                        onClick={() => handleNav(`/messages/${g.route}`)}
+                        selected={g.codes.some((c) => isMtActive(c))}
+                        sx={{ ...navStyle(g.codes.some((c) => isMtActive(c))), py: 0.5 }}
+                      >
+                        <ListItemText
+                          primary={g.label}
+                          secondary={g.secondary}
+                          primaryTypographyProps={{ fontSize: '0.8rem', fontWeight: 300 }}
+                          secondaryTypographyProps={{ fontSize: '0.7rem', noWrap: true, fontWeight: 300 }}
+                        />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                  {TESOURARIA_FX.filter((mt) => !TESOURARIA_GROUPS.some((g) => g.codes.includes(mt.code))).map((mt) => {
                     const active = isMtActive(mt.code);
                     return (
                       <ListItem key={mt.code} disablePadding sx={{ pl: 4, pr: 1 }}>
                         <ListItemButton
-                          onClick={() => navigate(`/messages/${mt.code}`)}
+                          onClick={() => handleNav(`/messages/${mt.code}`)}
                           selected={active}
                           sx={{ ...navStyle(active), py: 0.5 }}
                         >
                           <ListItemText
                             primary={mt.label}
                             secondary={mt.fullName}
-                            primaryTypographyProps={{ fontSize: '0.8rem' }}
-                            secondaryTypographyProps={{ fontSize: '0.7rem', noWrap: true }}
+                            primaryTypographyProps={{ fontSize: '0.8rem', fontWeight: 300 }}
+                            secondaryTypographyProps={{ fontSize: '0.7rem', noWrap: true, fontWeight: 300 }}
                           />
                         </ListItemButton>
                       </ListItem>
@@ -229,30 +373,52 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
               </Collapse>
 
               <ListItem disablePadding sx={{ px: 1, mt: 0.5 }}>
-                <ListItemButton onClick={() => setOpenTrade(!openTrade)} sx={navStyle(false)}>
+                <ListItemButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenTrade(!openTrade);
+                  }}
+                  sx={navStyle(false)}
+                >
                   <ListItemIcon sx={{ minWidth: 40, color: '#6B6B6B' }}>
                     <MessageIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Trade/Collections (MT4xx)" primaryTypographyProps={{ fontWeight: 600, fontSize: '0.875rem' }} />
+                  <ListItemText primary="Trade/Collections (MT4xx)" primaryTypographyProps={{ fontWeight: 300, fontSize: '0.875rem' }} />
                   {openTrade ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                 </ListItemButton>
               </ListItem>
               <Collapse in={openTrade} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
-                  {TRADE_COLLECTIONS.map((mt) => {
+                  {TRADE_GROUPS.map((g) => (
+                    <ListItem key={g.route} disablePadding sx={{ pl: 4, pr: 1 }}>
+                      <ListItemButton
+                        onClick={() => handleNav(`/messages/${g.route}`)}
+                        selected={g.codes.some((c) => isMtActive(c))}
+                        sx={{ ...navStyle(g.codes.some((c) => isMtActive(c))), py: 0.5 }}
+                      >
+                        <ListItemText
+                          primary={g.label}
+                          secondary={g.secondary}
+                          primaryTypographyProps={{ fontSize: '0.8rem', fontWeight: 300 }}
+                          secondaryTypographyProps={{ fontSize: '0.7rem', noWrap: true, fontWeight: 300 }}
+                        />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                  {TRADE_COLLECTIONS.filter((mt) => !TRADE_GROUPS.some((g) => g.codes.includes(mt.code))).map((mt) => {
                     const active = isMtActive(mt.code);
                     return (
                       <ListItem key={mt.code} disablePadding sx={{ pl: 4, pr: 1 }}>
                         <ListItemButton
-                          onClick={() => navigate(`/messages/${mt.code}`)}
+                          onClick={() => handleNav(`/messages/${mt.code}`)}
                           selected={active}
                           sx={{ ...navStyle(active), py: 0.5 }}
                         >
                           <ListItemText
                             primary={mt.label}
                             secondary={mt.fullName}
-                            primaryTypographyProps={{ fontSize: '0.8rem' }}
-                            secondaryTypographyProps={{ fontSize: '0.7rem', noWrap: true }}
+                            primaryTypographyProps={{ fontSize: '0.8rem', fontWeight: 300 }}
+                            secondaryTypographyProps={{ fontSize: '0.7rem', noWrap: true, fontWeight: 300 }}
                           />
                         </ListItemButton>
                       </ListItem>
@@ -262,30 +428,52 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
               </Collapse>
 
               <ListItem disablePadding sx={{ px: 1, mt: 0.5 }}>
-                <ListItemButton onClick={() => setOpenSecurities(!openSecurities)} sx={navStyle(false)}>
+                <ListItemButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenSecurities(!openSecurities);
+                  }}
+                  sx={navStyle(false)}
+                >
                   <ListItemIcon sx={{ minWidth: 40, color: '#6B6B6B' }}>
                     <AccountBalanceIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Securities (MT5xx)" primaryTypographyProps={{ fontWeight: 600, fontSize: '0.875rem' }} />
+                  <ListItemText primary="Securities (MT5xx)" primaryTypographyProps={{ fontWeight: 300, fontSize: '0.875rem' }} />
                   {openSecurities ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                 </ListItemButton>
               </ListItem>
               <Collapse in={openSecurities} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
-                  {SECURITIES.map((mt) => {
+                  {SECURITIES_GROUPS.map((g) => (
+                    <ListItem key={g.route} disablePadding sx={{ pl: 4, pr: 1 }}>
+                      <ListItemButton
+                        onClick={() => handleNav(`/messages/${g.route}`)}
+                        selected={g.codes.some((c) => isMtActive(c))}
+                        sx={{ ...navStyle(g.codes.some((c) => isMtActive(c))), py: 0.5 }}
+                      >
+                        <ListItemText
+                          primary={g.label}
+                          secondary={g.secondary || undefined}
+                          primaryTypographyProps={{ fontSize: '0.8rem', fontWeight: 300 }}
+                          secondaryTypographyProps={{ fontSize: '0.7rem', noWrap: true, fontWeight: 300 }}
+                        />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                  {SECURITIES.filter((mt) => !SECURITIES_GROUPS.some((g) => g.codes.includes(mt.code))).map((mt) => {
                     const active = isMtActive(mt.code);
                     return (
                       <ListItem key={mt.code} disablePadding sx={{ pl: 4, pr: 1 }}>
                         <ListItemButton
-                          onClick={() => navigate(`/messages/${mt.code}`)}
+                          onClick={() => handleNav(`/messages/${mt.code}`)}
                           selected={active}
                           sx={{ ...navStyle(active), py: 0.5 }}
                         >
                           <ListItemText
                             primary={mt.label}
                             secondary={mt.fullName}
-                            primaryTypographyProps={{ fontSize: '0.8rem' }}
-                            secondaryTypographyProps={{ fontSize: '0.7rem', noWrap: true }}
+                            primaryTypographyProps={{ fontSize: '0.8rem', fontWeight: 300 }}
+                            secondaryTypographyProps={{ fontSize: '0.7rem', noWrap: true, fontWeight: 300 }}
                           />
                         </ListItemButton>
                       </ListItem>
@@ -301,14 +489,14 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
             return (
               <ListItem key={item.id} disablePadding sx={{ px: 1, mt: 0.5 }}>
                 <ListItemButton
-                  onClick={() => navigate(item.path)}
+                  onClick={() => handleNav(item.path)}
                   selected={active}
                   sx={navStyle(active)}
                 >
                   <ListItemIcon sx={{ minWidth: collapsed ? 0 : 40, color: 'inherit' }}>
                     {item.icon}
                   </ListItemIcon>
-                  {!collapsed && <ListItemText primary={item.label} />}
+                  {!collapsed && <ListItemText primary={item.label} primaryTypographyProps={{ fontWeight: 300 }} />}
                 </ListItemButton>
               </ListItem>
             );

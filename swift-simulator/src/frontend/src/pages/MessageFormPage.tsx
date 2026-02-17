@@ -23,7 +23,7 @@ import { getAccounts } from '../services/accountsService';
 import { validateIban, validateBic } from '../services/validateService';
 import { createMessage } from '../services/messagesService';
 import type { Account } from '../services/accountsService';
-import { getMtByCode } from '../constants/swiftMtTypes';
+import { getMtByCode, getGroupByRoute, getGroupByCode } from '../constants/swiftMtTypes';
 import { MT_FORM_SCHEMAS, type FormField } from '../constants/mtFormSchemas';
 import BicField from '../components/forms/BicField';
 import { useToast } from '../contexts/ToastContext';
@@ -44,8 +44,10 @@ const MessageFormPage: React.FC = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [bicValid, setBicValid] = useState<Record<string, boolean | null>>({});
+  const [ibanValid, setIbanValid] = useState<Record<string, boolean | null>>({});
   const [bankInfo, setBankInfo] = useState<Record<string, { name?: string; city?: string; country?: string } | null>>({});
 
+  const group = mtCode ? (getGroupByRoute(mtCode) ?? getGroupByCode(mtCode)) : null;
   const schema = mtCode ? MT_FORM_SCHEMAS[mtCode] : null;
   const mtInfo = mtCode ? getMtByCode(mtCode) : null;
 
@@ -65,9 +67,28 @@ const MessageFormPage: React.FC = () => {
       }));
     }
   }, [schema]);
+  useEffect(() => {
+    if (group && !formData.mtType) {
+      setFormData((prev) => ({ ...prev, mtType: group.codes[0] }));
+    }
+  }, [group]);
 
   const handleChange = (key: string, value: unknown) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleIbanBlur = async (key: string) => {
+    const iban = (formData[key] as string)?.replace(/\s/g, '') || '';
+    if (iban.length < 15) {
+      setIbanValid((prev) => ({ ...prev, [key]: null }));
+      return;
+    }
+    try {
+      const res = await validateIban(iban);
+      setIbanValid((prev) => ({ ...prev, [key]: res.data?.data?.valid ?? false }));
+    } catch {
+      setIbanValid((prev) => ({ ...prev, [key]: false }));
+    }
   };
 
   const handleBicBlur = async (key: string) => {
@@ -93,6 +114,18 @@ const MessageFormPage: React.FC = () => {
     }
   };
 
+  const handleValidateAll = async () => {
+    if (!schema) return;
+    for (const f of schema.fields) {
+      if (f.type === 'iban' || f.key.toLowerCase().includes('iban')) {
+        await handleIbanBlur(f.key);
+      }
+      if (f.type === 'bic' || f.key.toLowerCase().includes('bic')) {
+        await handleBicBlur(f.key);
+      }
+    }
+  };
+
   const handleAccountSelect = (accountId: number) => {
     const acc = accounts.find((a) => a.id === accountId);
     if (acc) {
@@ -113,8 +146,12 @@ const MessageFormPage: React.FC = () => {
         const v = formData[f.key];
         if (v === undefined || v === null || v === '') return false;
       }
-      if (f.type === 'bic' && formData[f.key]) {
+      if ((f.type === 'bic' || f.key.toLowerCase().includes('bic')) && formData[f.key]) {
         const valid = bicValid[f.key];
+        if (valid === false) return false;
+      }
+      if ((f.type === 'iban' || f.key.toLowerCase().includes('iban')) && formData[f.key]) {
+        const valid = ibanValid[f.key];
         if (valid === false) return false;
       }
     }
@@ -134,11 +171,12 @@ const MessageFormPage: React.FC = () => {
           else payload[f.key] = v;
         }
       }
-      const res = await createMessage(mtCode as any, payload);
+      const messageType = (group ? (formData.mtType as string) || group.codes[0] : mtCode) as any;
+      const res = await createMessage(messageType, payload);
       const msg = res.data?.data?.message;
       setConfirmOpen(false);
       showSuccess(
-        `Mensagem ${mtCode} criada com sucesso`,
+        `Mensagem ${messageType} criada com sucesso`,
         msg?.referenceNumber ?? '',
         () => navigate(`/messages/view/${msg?.id}`),
         'Ver mensagem'
@@ -173,6 +211,8 @@ const MessageFormPage: React.FC = () => {
     }
 
     if (f.type === 'iban' || hasIban) {
+      const ibanStatus = ibanValid[f.key];
+      const helper = ibanStatus === true ? 'IBAN válido' : ibanStatus === false ? 'IBAN inválido' : f.helperText;
       return (
         <TextField
           key={f.key}
@@ -180,8 +220,10 @@ const MessageFormPage: React.FC = () => {
           label={f.label}
           value={formatIban((value as string) || '')}
           onChange={(e) => handleChange(f.key, e.target.value.replace(/\s/g, ''))}
+          onBlur={() => handleIbanBlur(f.key)}
           required={f.required}
-          helperText={f.helperText}
+          error={ibanStatus === false}
+          helperText={helper}
           sx={{ mb: 2 }}
         />
       );
@@ -286,13 +328,32 @@ const MessageFormPage: React.FC = () => {
         Voltar
       </Button>
       <Typography variant="h5" fontWeight={600} gutterBottom>
-        {mtInfo.label} — {mtInfo.fullName}
+        {group?.secondary || `${mtInfo.label} — ${mtInfo.fullName}`}
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Mensagens &gt; {mtInfo.label}
+        {group?.label || mtInfo.label}
       </Typography>
 
       <Paper sx={{ p: 3, maxWidth: 600 }}>
+        {group && (
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <InputLabel>MT Type</InputLabel>
+            <Select
+              value={(formData.mtType as string) || group.codes[0]}
+              onChange={(e) => handleChange('mtType', e.target.value)}
+              label="MT Type"
+            >
+              {group.codes.map((c) => {
+                const info = getMtByCode(c);
+                return (
+                  <MenuItem key={c} value={c}>
+                    {c} {info ? `— ${info.fullName}` : ''}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+        )}
         {needsAccount && accounts.length > 0 && (
           <FormControl fullWidth sx={{ mb: 2 }}>
             <InputLabel>Debitar de (conta)</InputLabel>
@@ -311,6 +372,14 @@ const MessageFormPage: React.FC = () => {
         )}
 
         {schema.fields.map((f) => renderField(f))}
+
+        {(schema.fields.some((f) => f.type === 'iban' || f.type === 'bic' || f.key.toLowerCase().includes('iban') || f.key.toLowerCase().includes('bic')) && (
+          <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+            <Button variant="outlined" onClick={handleValidateAll}>
+              Validar IBAN e BIC
+            </Button>
+          </Box>
+        ))}
 
         <Box sx={{ mt: 3, display: 'flex', gap: 1 }}>
           <Button variant="outlined" onClick={() => navigate(-1)}>

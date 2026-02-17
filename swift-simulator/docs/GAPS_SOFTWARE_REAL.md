@@ -1,6 +1,6 @@
 # Lacunas — Para Parecer Software Real
 
-O que falta para o simulador deixar de parecer fraude e se aproximar de um sistema bancário real.
+O que falta para o sistema deixar de parecer fraude e se aproximar de um sistema bancário real.
 
 ---
 
@@ -64,7 +64,7 @@ O que falta para o simulador deixar de parecer fraude e se aproximar de um siste
 
 - Validação de formato já existe
 - Alguns sistemas checam se o IBAN existe (via API externa)
-- Para simulador: pode ficar só em formato
+- Para o sistema: pode ficar só em formato
 - Para mais realismo: integração com serviço de validação (pago)
 
 ---

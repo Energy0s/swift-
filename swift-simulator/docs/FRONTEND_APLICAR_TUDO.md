@@ -263,7 +263,7 @@ Ao clicar "Confirmar e enviar" no modal:
 - 20% → 50%: "Gerando mensagem"
 - 50% → 80%: "Enviando"
 - 80% → 100%: "Concluído"
-- Simular com setTimeout (ex: 500ms por etapa)
+- Usar setTimeout para delay entre etapas (ex: 500ms por etapa)
 
 ### 5.2 Skeleton loading
 

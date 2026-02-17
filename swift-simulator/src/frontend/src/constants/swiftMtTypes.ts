@@ -29,6 +29,7 @@ export const PAGAMENTOS: SwiftMtItem[] = [
 export const MENSAGENS: SwiftMtItem[] = [
   { code: 'MT105', label: 'MT105', fullName: 'EDIFACT Envelope' },
   { code: 'MT106', label: 'MT106', fullName: 'EDIFACT Envelope' },
+  { code: 'MT109', label: 'MT109', fullName: 'Advice of Cheque(s)' },
   { code: 'MT110', label: 'MT110', fullName: 'Advice of Cheque(s)' },
   { code: 'MT111', label: 'MT111', fullName: 'Request for Stop Payment of a Cheque' },
   { code: 'MT112', label: 'MT112', fullName: 'Status of Stop Payment Request' },
@@ -123,3 +124,40 @@ export const ALL_MT_TYPES = [
 ];
 
 export const getMtByCode = (code: string) => ALL_MT_TYPES.find((m) => m.code === code);
+
+/** Grupos de MTs que compartilham os mesmos campos (Mensagens) */
+export const MENSAGENS_GROUPS: { route: string; codes: string[]; label: string; secondary: string }[] = [
+  { route: 'MT105', codes: ['MT105', 'MT106'], label: 'MT105 / MT106', secondary: 'EDIFACT Envelope' },
+  { route: 'MT109', codes: ['MT109', 'MT110'], label: 'MT109 / MT110', secondary: 'Aviso de Cheque(s)' },
+  { route: 'MT190', codes: ['MT190', 'MT290'], label: 'MT190 / MT290', secondary: 'Advice of Charges/Interest' },
+  { route: 'MT191', codes: ['MT191', 'MT291'], label: 'MT191 / MT291', secondary: 'Request for Payment of Charges' },
+  { route: 'MT192', codes: ['MT192', 'MT292'], label: 'MT192 / MT292', secondary: 'Request for Cancellation' },
+  { route: 'MT195', codes: ['MT195', 'MT295'], label: 'MT195 / MT295', secondary: 'Queries' },
+  { route: 'MT196', codes: ['MT196', 'MT296'], label: 'MT196 / MT296', secondary: 'Answers' },
+  { route: 'MT198', codes: ['MT198', 'MT298'], label: 'MT198 / MT298', secondary: 'Proprietary Message' },
+];
+
+/** Grupos de MTs que compartilham os mesmos campos (Tesouraria/FX) */
+export const TESOURARIA_GROUPS: { route: string; codes: string[]; label: string; secondary: string }[] = [
+  { route: 'MT300', codes: ['MT300', 'MT303', 'MT304', 'MT305', 'MT307', 'MT308', 'MT320', 'MT330', 'MT340', 'MT350', 'MT360', 'MT380', 'MT381', 'MT390'], label: 'MT300 / MT303 / MT304 / MT305 / MT307 / MT308 / MT320 / MT330 / MT340 / MT350 / MT360 / MT380 / MT381 / MT390', secondary: 'FX, Loan, Deposit, Derivatives' },
+];
+
+/** Grupos de MTs em Pagamentos (fiTransferFields) */
+export const PAGAMENTOS_GROUPS: { route: string; codes: string[]; label: string; secondary: string }[] = [
+  { route: 'MT200', codes: ['MT200', 'MT201', 'MT202', 'MT203', 'MT204', 'MT205', 'MT207'], label: 'MT200 / MT201 / MT202 / MT203 / MT204 / MT205 / MT207', secondary: 'Transferências entre Instituições Financeiras' },
+];
+
+/** Grupos de MTs em Trade/Collections (fxTradeFields) */
+export const TRADE_GROUPS: { route: string; codes: string[]; label: string; secondary: string }[] = [
+  { route: 'MT400', codes: ['MT400', 'MT405', 'MT410', 'MT412', 'MT416', 'MT420', 'MT430', 'MT450', 'MT455', 'MT456', 'MT490', 'MT491'], label: 'MT400 / MT405 / MT410 / MT412 / MT416 / MT420 / MT430 / MT450 / MT455 / MT456 / MT490 / MT491', secondary: 'Collections, Advice, Tracer' },
+];
+
+/** Grupos de MTs em Securities (fxTradeFields) */
+export const SECURITIES_GROUPS: { route: string; codes: string[]; label: string; secondary: string }[] = [
+  { route: 'MT500', codes: ['MT500', 'MT501', 'MT502', 'MT520', 'MT530', 'MT540', 'MT541', 'MT542', 'MT543', 'MT544', 'MT545', 'MT546', 'MT547', 'MT548', 'MT550', 'MT560', 'MT564'], label: 'MT500 / MT501 / MT502 / MT520 / MT530 / MT540 / MT541 / MT542 / MT543 / MT544 / MT545 / MT546 / MT547 / MT548 / MT550 / MT560 / MT564', secondary: '' },
+];
+
+const ALL_GROUPS = [...MENSAGENS_GROUPS, ...TESOURARIA_GROUPS, ...PAGAMENTOS_GROUPS, ...TRADE_GROUPS, ...SECURITIES_GROUPS];
+
+export const getGroupByRoute = (route: string) => ALL_GROUPS.find((g) => g.route === route);
+export const getGroupByCode = (code: string) => ALL_GROUPS.find((g) => g.codes.includes(code));

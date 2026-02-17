@@ -1,25 +1,11 @@
 /**
- * Armazenamento in-memory (substituir por PostgreSQL/Sequelize depois)
+ * Armazenamento — usuários e contas persistentes (JSON)
  */
 
-export interface User {
-  id: number;
-  name: string;
-  email: string;
-  passwordHash: string;
-  createdAt: string;
-}
-
-export interface Account {
-  id: number;
-  userId: number;
-  accountNumber: string;
-  iban: string;
-  bic: string;
-  balance: number;
-  currency: string;
-  dailyLimit: number;
-}
+export type { User } from './userStore.js';
+export type { Account } from './accountStore.js';
+export { userStore } from './userStore.js';
+export { accountStore } from './accountStore.js';
 
 export interface Transfer {
   id: number;
@@ -49,56 +35,9 @@ export interface Transfer {
   updatedAt: string;
 }
 
-const users: User[] = [];
-const accounts: Account[] = [];
 const transfers: Transfer[] = [];
 
-let userIdCounter = 1;
-let accountIdCounter = 1;
 let transferIdCounter = 1;
-
-export const userStore = {
-  create: (data: Omit<User, 'id' | 'createdAt'>) => {
-    const user: User = {
-      ...data,
-      id: userIdCounter++,
-      createdAt: new Date().toISOString(),
-    };
-    users.push(user);
-    return user;
-  },
-  findByEmail: (email: string) => users.find((u) => u.email === email),
-  findById: (id: number) => users.find((u) => u.id === id),
-  update: (id: number, data: Partial<Pick<User, 'name' | 'email' | 'passwordHash'>>) => {
-    const idx = users.findIndex((u) => u.id === id);
-    if (idx >= 0) {
-      users[idx] = { ...users[idx], ...data };
-      return users[idx];
-    }
-    return null;
-  },
-};
-
-export const accountStore = {
-  create: (data: Omit<Account, 'id'>) => {
-    const account: Account = {
-      ...data,
-      id: accountIdCounter++,
-    };
-    accounts.push(account);
-    return account;
-  },
-  findByUserId: (userId: number) => accounts.filter((a) => a.userId === userId),
-  findById: (id: number) => accounts.find((a) => a.id === id),
-  updateBalance: (id: number, newBalance: number) => {
-    const idx = accounts.findIndex((a) => a.id === id);
-    if (idx >= 0) {
-      accounts[idx].balance = newBalance;
-      return accounts[idx];
-    }
-    return null;
-  },
-};
 
 export const transferStore = {
   create: (data: Omit<Transfer, 'id' | 'createdAt' | 'updatedAt'>) => {

@@ -2,6 +2,15 @@
  * Utilitários compartilhados para geração de mensagens SWIFT MT
  */
 
+import {
+  buildBlock1,
+  buildBlock2,
+  buildBlock5,
+  generateSessionSequence,
+  generateUetr,
+  generateChk,
+} from './swiftAutoFields.js';
+
 export function formatSwiftAmount(amount: number): string {
   return amount.toFixed(2).replace('.', ',');
 }
@@ -33,13 +42,14 @@ export function escapeSwiftText(str: string): string {
     .trim();
 }
 
-export function generateUetr(): string {
-  return typeof crypto !== 'undefined' && crypto.randomUUID
-    ? crypto.randomUUID()
-    : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-        const r = (Math.random() * 16) | 0;
-        return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
-      });
+export { generateUetr } from './swiftAutoFields.js';
+
+export interface BuildSwiftMessageOptions {
+  hasBlock3?: boolean;
+  sessionSequence?: string;
+  uetr?: string;
+  senderReference?: string;
+  includeBlock5?: boolean;
 }
 
 export function buildSwiftMessage(
@@ -47,11 +57,30 @@ export function buildSwiftMessage(
   senderBic: string,
   receiverBic: string,
   block4Lines: string[],
-  options?: { hasBlock3?: boolean }
+  options?: BuildSwiftMessageOptions
 ): string {
-  const block1 = `{1:F01${formatBicBlock(senderBic)}0000000000}`;
-  const block2 = `{2:I${mtCode.replace(/[^0-9]/g, '')}${formatBicBlock(receiverBic)}N}`;
+  const sessionSeq = options?.sessionSequence || generateSessionSequence();
+  const block1 = buildBlock1({
+    senderBic,
+    sessionSequence: sessionSeq,
+  });
+  const block2 = buildBlock2({
+    mtCode: mtCode.replace(/[^0-9]/g, ''),
+    receiverBic,
+    priority: 'N',
+  });
   const block4 = `{4:\n${block4Lines.join('\n')}\n-}`;
-  const uetr = options?.hasBlock3 ? `{3:{111:001}{121:${generateUetr()}}}` : '';
-  return uetr ? `${block1}${block2}${uetr}${block4}` : `${block1}${block2}${block4}`;
+  let body = '';
+  if (options?.hasBlock3) {
+    const uetr = options?.uetr || generateUetr();
+    const block3 = `{3:{111:001}{121:${uetr}}}`;
+    body = `${block1}${block2}${block3}${block4}`;
+  } else {
+    body = `${block1}${block2}${block4}`;
+  }
+  if (options?.includeBlock5) {
+    const chk = generateChk(body);
+    return `${body}${buildBlock5(chk)}`;
+  }
+  return body;
 }

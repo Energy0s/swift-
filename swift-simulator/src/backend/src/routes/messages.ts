@@ -9,10 +9,15 @@ const router = Router();
 router.use(authMiddleware);
 
 router.get('/', (req: Request & { user?: { userId: number } }, res: Response) => {
-  const { messageType, status, page = 1, limit = 20 } = req.query;
+  const { messageType, messageTypes, status, reference, page = 1, limit = 20 } = req.query;
+  const types = messageTypes
+    ? (typeof messageTypes === 'string' ? messageTypes.split(',') : (messageTypes as string[]))
+    : undefined;
   const result = messagesStore.findByUserId(req.user!.userId, {
     messageType: messageType as any,
+    messageTypes: types,
     status: status as string,
+    reference: reference as string,
     page: Number(page),
     limit: Number(limit),
   });

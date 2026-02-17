@@ -57,6 +57,9 @@ Thumbs.db
 vite.config.js.timestamp*
 vite.config.ts.timestamp*
 
+# Backend data (MT101, etc.)
+swift-simulator/src/backend/data/
+
 # Temporary files
 *.tmp
 *.temp

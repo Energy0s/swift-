@@ -48,14 +48,22 @@ export const messagesStore = {
 
   findByUserId: (
     userId: number,
-    options?: { messageType?: SwiftMessageType; limit?: number; page?: number; status?: string }
+    options?: { messageType?: SwiftMessageType; messageTypes?: string[]; status?: string; reference?: string; limit?: number; page?: number }
   ) => {
     let list = messages.filter((m) => m.userId === userId);
     if (options?.messageType) {
       list = list.filter((m) => m.messageType === options.messageType);
     }
+    if (options?.messageTypes?.length) {
+      const set = new Set(options.messageTypes);
+      list = list.filter((m) => set.has(m.messageType));
+    }
     if (options?.status) {
       list = list.filter((m) => m.status === options.status);
+    }
+    if (options?.reference) {
+      const ref = options.reference.toLowerCase().trim();
+      list = list.filter((m) => m.referenceNumber?.toLowerCase().includes(ref));
     }
     const limit = options?.limit ?? 20;
     const page = options?.page ?? 1;

@@ -8,12 +8,13 @@ import {
   Tabs,
   Tab,
 } from '@mui/material';
-import { ArrowBack as BackIcon, ContentCopy as CopyIcon, Download as DownloadIcon } from '@mui/icons-material';
+import { ArrowBack as BackIcon, ContentCopy as CopyIcon, Download as DownloadIcon, PictureAsPdf as PdfIcon } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getMessage } from '../services/messagesService';
 import { getMtByCode } from '../constants/swiftMtTypes';
 import MtMessageViewer from '../components/swift/MtMessageViewer';
 import { useToast } from '../contexts/ToastContext';
+import { downloadSwiftReceipt } from '../services/swiftReceiptPdf';
 
 const MessageViewPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -49,6 +50,34 @@ const MessageViewPage: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
+  const handlePdfReceipt = () => {
+    if (!message) return;
+    const p = message.payload || {};
+    downloadSwiftReceipt({
+      messageType: message.messageType || 'MT-103',
+      reference: message.referenceNumber || p.referenceNumber,
+      valueDate: p.valueDate,
+      amount: p.amount,
+      currency: p.currency,
+      senderBic: p.senderBic || p.sourceBic || 'BOMGBRS1XXX',
+      senderIban: p.sourceIban || p.senderIban,
+      senderAccount: p.sourceIban || p.senderAccount,
+      receiverBic: p.receiverBic || p.destinationBic || p.beneficiaryBic,
+      receiverAccount: p.destinationIban || p.beneficiaryIban,
+      orderingCustomer: p.orderingCustomer || p.sourceHolderName,
+      beneficiaryName: p.beneficiaryName || p.destinationHolderName,
+      beneficiaryAddress: p.beneficiaryAddress || p.destinationAddress,
+      beneficiaryCity: p.beneficiaryCity || p.destinationCity,
+      beneficiaryCountry: p.beneficiaryCountry || p.destinationCountry,
+      bankOperationCode: p.bankOperationCode,
+      detailsOfCharges: p.detailsOfCharges,
+      senderToReceiverInfo: p.senderToReceiverInfo || p.purpose,
+      purpose: p.purpose,
+      rawMessage: message.rawMessage,
+      createdAt: message.createdAt,
+    });
+  };
+
   if (loading || !message) {
     return (
       <Box>
@@ -78,7 +107,10 @@ const MessageViewPage: React.FC = () => {
           Copiar
         </Button>
         <Button size="small" startIcon={<DownloadIcon />} onClick={handleDownload}>
-          Baixar
+          Baixar TXT
+        </Button>
+        <Button size="small" variant="outlined" startIcon={<PdfIcon />} onClick={handlePdfReceipt}>
+          Recibo PDF (VHS)
         </Button>
       </Box>
 

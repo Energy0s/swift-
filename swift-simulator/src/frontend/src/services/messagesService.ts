@@ -29,13 +29,17 @@ export interface SwiftMessage {
 
 export const getMessages = (params?: {
   messageType?: SwiftMessageType;
+  messageTypes?: SwiftMessageType[];
   status?: string;
+  reference?: string;
   page?: number;
   limit?: number;
 }) => {
   const searchParams = new URLSearchParams();
   if (params?.messageType) searchParams.set('messageType', params.messageType);
+  if (params?.messageTypes?.length) searchParams.set('messageTypes', params.messageTypes.join(','));
   if (params?.status) searchParams.set('status', params.status);
+  if (params?.reference) searchParams.set('reference', params.reference);
   if (params?.page) searchParams.set('page', String(params.page));
   if (params?.limit) searchParams.set('limit', String(params.limit));
   const qs = searchParams.toString();

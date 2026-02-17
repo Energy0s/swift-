@@ -2,7 +2,10 @@
  * Serviço de geração de mensagens SWIFT MT202
  * General Financial Institution Transfer — transferência entre bancos
  * Usado para liquidação interbancária (não transferência de cliente)
+ * UETR obrigatório desde Nov/2018 (campo 121)
  */
+
+import { generateUetr } from './mtUtils.js';
 
 export interface Mt202Input {
   referenceNumber: string;
@@ -77,7 +80,8 @@ export function generateMt202(transfer: Mt202Input): string {
 
   const block1 = `{1:F01${orderingBic}0000000000}`;
   const block2 = `{2:I202${beneficiaryBic}N}`;
+  const block3 = `{3:{111:001}{121:${generateUetr()}}}`;
   const block4Formatted = `{4:\n${block4}\n-}`;
 
-  return `${block1}${block2}${block4Formatted}`;
+  return `${block1}${block2}${block3}${block4Formatted}`;
 }

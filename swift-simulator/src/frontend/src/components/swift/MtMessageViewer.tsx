@@ -80,8 +80,8 @@ const MtMessageViewer: React.FC<MtMessageViewerProps> = ({ message, messageType 
 
   return (
     <Paper sx={{ overflow: 'hidden' }}>
-      <Box sx={{ bgcolor: '#F7F7F7', px: 2, py: 1, borderBottom: '1px solid #E0E0E0' }}>
-        <Typography variant="caption" fontWeight={600} color="#6B6B6B">
+      <Box sx={{ bgcolor: 'var(--swift-bg-subtle, #F2F2F2)', px: 2, py: 1, borderBottom: '1px solid var(--swift-border, rgba(0,0,0,0.12))' }}>
+        <Typography variant="caption" fontWeight={600} sx={{ color: 'var(--swift-text-muted, #666666)' }}>
           {messageType} — Campos (Tags)
         </Typography>
       </Box>
@@ -89,10 +89,10 @@ const MtMessageViewer: React.FC<MtMessageViewerProps> = ({ message, messageType 
         <TableBody>
           {tags.map(({ tag, value }) => (
             <TableRow key={tag}>
-              <TableCell sx={{ width: 80, fontFamily: 'monospace', fontWeight: 600, color: '#006BA6' }}>
+              <TableCell sx={{ width: 80, fontFamily: 'monospace', fontWeight: 600, color: 'var(--swift-accent, #0072CE)' }}>
                 :{tag}:
               </TableCell>
-              <TableCell sx={{ color: '#6B6B6B', fontSize: '0.75rem' }}>
+              <TableCell sx={{ color: 'var(--swift-text-muted, #666666)', fontSize: '0.75rem' }}>
                 {MT_TAG_LABELS[tag] || tag}
               </TableCell>
               <TableCell sx={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>

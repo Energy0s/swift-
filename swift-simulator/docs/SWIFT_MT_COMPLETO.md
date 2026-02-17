@@ -1,6 +1,6 @@
 # SWIFT MT — Tipos e Campos Completos
 
-Especificação profissional de todos os tipos MT relevantes para o simulador. Campos obrigatórios e opcionais conforme padrão SWIFT.
+Especificação profissional de todos os tipos MT relevantes para o sistema. Campos obrigatórios e opcionais conforme padrão SWIFT.
 
 ---
 
@@ -159,4 +159,4 @@ O formulário deve mapear para os campos MT103:
 
 ---
 
-*Documento de referência para implementação profissional do simulador SWIFT.*
+*Documento de referência para implementação profissional do sistema SWIFT.*

@@ -16,10 +16,11 @@ import {
   Tabs,
   Tab,
 } from '@mui/material';
-import { ArrowBack as BackIcon, ContentCopy as CopyIcon, Download as DownloadIcon, Print as PrintIcon } from '@mui/icons-material';
+import { ArrowBack as BackIcon, ContentCopy as CopyIcon, Download as DownloadIcon, Print as PrintIcon, PictureAsPdf as PdfIcon } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getTransfer, getSwiftMessage } from '../services/transfersService';
 import MtMessageViewer from '../components/swift/MtMessageViewer';
+import { downloadSwiftReceipt, generateSwiftReceiptText } from '../services/swiftReceiptPdf';
 
 const formatDate = (d: string) => new Date(d).toLocaleString('pt-BR');
 const formatAmount = (v: number, c: string) =>
@@ -83,39 +84,31 @@ const TransactionDetailPage: React.FC = () => {
     navigator.clipboard.writeText(swiftMessage);
   };
 
-  const generateComprovante = () => {
-    const lines = [
-      '=== COMPROVANTE DE TRANSFERÊNCIA SWIFT ===',
-      '',
-      `Referência: ${transfer.referenceNumber}`,
-      `Status: ${statusLabel[transfer.status] || transfer.status}`,
-      `Data: ${formatDate(transfer.createdAt)}`,
-      '',
-      'Origem:',
-      `  Conta: ${transfer.sourceAccount?.accountNumber}`,
-      `  IBAN: ${transfer.sourceAccount?.iban}`,
-      '',
-      'Destinatário:',
-      `  Nome: ${transfer.destinationHolderName}`,
-      `  IBAN: ${transfer.destinationIban}`,
-      `  BIC: ${transfer.destinationBic}`,
-      '',
-      `Valor: ${formatAmount(transfer.amount, transfer.currency)}`,
-      `Taxa: ${formatAmount(transfer.fees, transfer.currency)}`,
-      `Total debitado: ${formatAmount(transfer.totalAmount, transfer.currency)}`,
-      transfer.purpose ? `Propósito: ${transfer.purpose}` : '',
-      '',
-      '=== FIM DO COMPROVANTE ===',
-    ].filter(Boolean);
-    return lines.join('\n');
+  const receiptData = {
+    messageType: 'MT-103',
+    reference: transfer.referenceNumber,
+    amount: transfer.amount,
+    currency: transfer.currency,
+    senderBic: 'BOMGBRS1XXX',
+    senderAccount: transfer.sourceAccount?.accountNumber,
+    senderIban: transfer.sourceAccount?.iban,
+    receiverBic: transfer.destinationBic,
+    receiverAccount: transfer.destinationIban,
+    beneficiaryName: transfer.destinationHolderName,
+    senderToReceiverInfo: transfer.purpose,
+    purpose: transfer.purpose,
+    rawMessage: transfer.swiftMessageMt103 || swiftMessage,
+    createdAt: transfer.createdAt,
   };
+
+  const generateComprovante = () => generateSwiftReceiptText(receiptData);
 
   const handleDownloadComprovante = () => {
     const blob = new Blob([generateComprovante()], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `comprovante-${transfer.referenceNumber}.txt`;
+    a.download = `recibo-swift-${transfer.referenceNumber}.txt`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -124,7 +117,9 @@ const TransactionDetailPage: React.FC = () => {
     const content = generateComprovante();
     const printWindow = window.open('', '_blank');
     if (printWindow) {
-      printWindow.document.write(`<pre style="font-family:monospace;padding:20px;">${content.replace(/</g, '&lt;')}</pre>`);
+      printWindow.document.write(
+        `<pre style="font-family:'Courier New',Courier,monospace;font-size:10pt;padding:20px;text-transform:uppercase;letter-spacing:0.5px;">${content.replace(/</g, '&lt;').replace(/&/g, '&amp;')}</pre>`
+      );
       printWindow.document.close();
       printWindow.print();
       printWindow.close();
@@ -170,7 +165,7 @@ const TransactionDetailPage: React.FC = () => {
             Propósito: {transfer.purpose}
           </Typography>
         )}
-        <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+        <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           <Button
             variant="outlined"
             size="small"
@@ -178,6 +173,14 @@ const TransactionDetailPage: React.FC = () => {
             onClick={handleDownloadComprovante}
           >
             Baixar comprovante
+          </Button>
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<PdfIcon />}
+            onClick={() => downloadSwiftReceipt(receiptData)}
+          >
+            Recibo PDF (VHS)
           </Button>
           <Button
             variant="outlined"

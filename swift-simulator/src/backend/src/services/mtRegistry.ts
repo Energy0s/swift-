@@ -311,7 +311,14 @@ function genMt204(p: MtPayload): string {
 }
 
 function genMt205(p: MtPayload): string {
-  return genMt204(p);
+  const ref = getRef(p);
+  const lines = [
+    `:20:${ref}`,
+    `:32A:${getDate(p)}${getCurrency(p)}${formatSwiftAmount(getAmount(p))}`,
+    `:52A:${formatBic8(getBic(p, 'orderingBic'))}`,
+    `:58A:${formatBic8(getBic(p, 'beneficiaryBic'))}`,
+  ];
+  return buildSwiftMessage('205', getBic(p, 'senderBic'), getBic(p, 'receiverBic'), lines, { hasBlock3: true });
 }
 
 function genMt206(p: MtPayload): string {

@@ -1,0 +1,176 @@
+/**
+ * SWIFT 2026 — Design tokens oficiais
+ * Aplicado via data-theme="swift" no root
+ */
+
+:root[data-theme="swift"] {
+  /* Brand */
+  --swift-primary: #004C91;
+  --swift-accent: #0072CE;
+
+  /* Text */
+  --swift-text: #333333;
+  --swift-text-muted: #666666;
+  --swift-text-on-primary: #FFFFFF;
+
+  /* Surfaces */
+  --swift-bg: #FFFFFF;
+  --swift-bg-subtle: #F2F2F2;
+  --swift-border: rgba(0, 0, 0, 0.12);
+
+  /* Status */
+  --swift-success: #00A76F;
+  --swift-warning: #F68B1E;
+  --swift-danger: #D7263D;
+  --swift-info: #0072CE;
+
+  /* Focus / Hover */
+  --swift-focus: #0072CE;
+  --swift-hover-overlay: rgba(0, 76, 145, 0.08);
+}
+
+/* Header SWIFT — mantém fundo claro e texto cinza (original) */
+[data-theme="swift"] .swift-header-appbar {
+  background-color: var(--swift-bg) !important;
+  color: var(--swift-text) !important;
+  border-bottom: 1px solid var(--swift-border) !important;
+}
+
+[data-theme="swift"] .swift-header-appbar .MuiTypography-root,
+[data-theme="swift"] .swift-header-appbar .MuiIconButton-root {
+  color: var(--swift-text-muted) !important;
+}
+
+[data-theme="swift"] .swift-header-appbar .MuiIconButton-root:hover {
+  background-color: var(--swift-hover-overlay) !important;
+}
+
+[data-theme="swift"] .swift-header-appbar .swift-status-up {
+  color: var(--swift-success) !important;
+}
+
+[data-theme="swift"] .swift-header-appbar .swift-status-down {
+  color: var(--swift-danger) !important;
+}
+
+[data-theme="swift"] .swift-header-appbar .MuiOutlinedInput-root {
+  background-color: var(--swift-bg) !important;
+}
+
+[data-theme="swift"] .swift-header-appbar .MuiOutlinedInput-notchedOutline {
+  border-color: var(--swift-border) !important;
+}
+
+[data-theme="swift"] .swift-header-appbar .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: var(--swift-focus) !important;
+}
+
+/* Footer SWIFT */
+[data-theme="swift"] .swift-footer {
+  background-color: var(--swift-bg-subtle) !important;
+  border-top: 1px solid var(--swift-border) !important;
+  color: var(--swift-text-muted) !important;
+}
+
+[data-theme="swift"] .swift-footer .swift-link:hover {
+  color: var(--swift-accent) !important;
+}
+
+[data-theme="swift"] .swift-footer .swift-muted {
+  color: var(--swift-text-muted) !important;
+}
+
+[data-theme="swift"] .swift-footer .swift-traffic-nack {
+  color: var(--swift-danger) !important;
+}
+
+[data-theme="swift"] .swift-footer .swift-traffic-holds {
+  color: var(--swift-warning) !important;
+}
+
+/* Sidebar no módulo SWIFT */
+[data-theme="swift"] [data-swift-module] nav,
+[data-theme="swift"] .MuiDrawer-paper nav {
+  background-color: var(--swift-bg) !important;
+  border-right: 1px solid var(--swift-border) !important;
+}
+
+[data-theme="swift"] [data-swift-module] nav .MuiListItemButton-root.Mui-selected {
+  background-color: var(--swift-hover-overlay) !important;
+  color: var(--swift-primary) !important;
+}
+
+[data-theme="swift"] [data-swift-module] nav .MuiListItemButton-root:hover {
+  background-color: var(--swift-hover-overlay) !important;
+}
+
+[data-theme="swift"] [data-swift-module] nav .MuiListItemIcon-root {
+  color: var(--swift-text-muted) !important;
+}
+
+[data-theme="swift"] [data-swift-module] nav .MuiListItemButton-root.Mui-selected .MuiListItemIcon-root {
+  color: var(--swift-primary) !important;
+}
+
+/* Conteúdo principal */
+[data-theme="swift"] [data-swift-module] main {
+  background-color: var(--swift-bg) !important;
+}
+
+[data-theme="swift"] [data-swift-module] .MuiPaper-root,
+[data-theme="swift"] [data-swift-module] .MuiCard-root {
+  background-color: var(--swift-bg) !important;
+  border-color: var(--swift-border) !important;
+}
+
+[data-theme="swift"] [data-swift-module] .MuiTableHead-root .MuiTableCell-head {
+  background-color: var(--swift-bg-subtle) !important;
+  color: var(--swift-text) !important;
+}
+
+[data-theme="swift"] [data-swift-module] .MuiTableRow-root:hover {
+  background-color: var(--swift-hover-overlay) !important;
+}
+
+[data-theme="swift"] [data-swift-module] .MuiButton-containedPrimary {
+  background-color: var(--swift-primary) !important;
+  color: var(--swift-text-on-primary) !important;
+}
+
+[data-theme="swift"] [data-swift-module] .MuiButton-containedPrimary:hover {
+  background-color: var(--swift-primary) !important;
+  filter: brightness(1.08);
+}
+
+[data-theme="swift"] [data-swift-module] .MuiButton-outlinedPrimary {
+  border-color: var(--swift-primary) !important;
+  color: var(--swift-primary) !important;
+}
+
+[data-theme="swift"] [data-swift-module] .MuiButton-outlinedPrimary:hover {
+  background-color: var(--swift-hover-overlay) !important;
+}
+
+[data-theme="swift"] [data-swift-module] .MuiLink-root {
+  color: var(--swift-accent) !important;
+}
+
+[data-theme="swift"] [data-swift-module] .MuiChip-colorSuccess {
+  background-color: var(--swift-success) !important;
+  color: var(--swift-text-on-primary) !important;
+}
+
+[data-theme="swift"] [data-swift-module] .MuiChip-colorWarning {
+  background-color: var(--swift-warning) !important;
+  color: var(--swift-text-on-primary) !important;
+}
+
+[data-theme="swift"] [data-swift-module] .MuiChip-colorError {
+  background-color: var(--swift-danger) !important;
+  color: var(--swift-text-on-primary) !important;
+}
+
+[data-theme="swift"] [data-swift-module] .MuiChip-colorInfo {
+  background-color: var(--swift-info) !important;
+  color: var(--swift-text-on-primary) !important;
+}
