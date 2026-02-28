@@ -35,7 +35,7 @@ const staticItems = [
   { id: 'inbox', path: '/inbox', label: 'Caixa de Entrada', icon: <InboxIcon /> },
   { id: 'messages', path: '/messages', label: 'Mensagens SWIFT', icon: <MessageIcon /> },
   { id: 'transactions', path: '/transactions', label: 'Histórico', icon: <HistoryIcon /> },
-  { id: 'contas', path: '/dashboard', label: 'Contas', icon: <AccountBalanceIcon /> },
+  { id: 'contas', path: '/accounts', label: 'Contas', icon: <AccountBalanceIcon /> },
   { id: 'profile', path: '/profile', label: 'Perfil', icon: <PersonIcon /> },
 ];
 
